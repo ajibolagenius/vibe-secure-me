@@ -1,0 +1,14 @@
+{
+  "name": "vibe-secure-me",
+  "version": "1.0.0",
+  "description": "Comprehensive, framework-agnostic security auditor skill for Antigravity",
+  "author": {
+    "name": "Ajibola Akelebe"
+  },
+  "license": "MIT",
+  "keywords": [
+    "security",
+    "audit",
+    "owasp"
+  ]
+}
