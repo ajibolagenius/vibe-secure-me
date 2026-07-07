@@ -1,0 +1,118 @@
+---
+name: secure-me
+description: Comprehensive, framework-agnostic security auditor. Audits codebases for common vulnerabilities introduced by AI coding assistants in "vibe-coded" applications, as well as complex enterprise attack vectors across web, API, mobile, cloud, low-level architecture, and agentic AI platforms. Trigger this skill whenever the user asks to review, audit, harden, threat-model, or "check the security" of any code, API, repository, mobile app, container, IaC, or cloud configuration. Also trigger on mentions of OWASP, CWE, penetration test prep, secure code review, vulnerability assessment, secrets scanning, IAM review, or compliance hardening.
+license: MIT
+metadata:
+  author: Ajibola Akelebe - Open Source Community
+  version: "3.0"
+---
+
+# Security Audit Skill (secure-me)
+
+Audit code for security vulnerabilities commonly introduced by AI code generation (prevalent in "vibe-coded" apps built rapidly with AI assistance where security fundamentals get skipped), as well as complex architectural flaws in enterprise systems.
+
+This skill is a complete, framework-agnostic security auditor mapping to current authoritative baselines including **OWASP Top 10:2025**, **OWASP API Security Top 10 (2023)**, **OWASP Mobile Top 10 (2024) / MASVS**, **OWASP Top 10 CI/CD Security Risks**, **OWASP Top 10 for LLM Applications (2025)**, CWE/MITRE, NIST, and cloud provider guidance.
+
+Use it defensively. It identifies vulnerabilities, explains root causes, shows how they would be found/exploited at a conceptual level, and provides concrete secure-code remediation. **Never output working exploits, attack tooling, or step-by-step intrusion instructions.**
+
+## The Core Principle
+
+Never trust the client. Every price, user ID, role, subscription status, feature flag, and rate limit counter must be validated or enforced server-side. If it exists only in the browser, mobile bundle, or request body, an attacker controls it.
+
+## Audit Methodology (Workflow)
+
+1. **Reconnaissance & Scoping:** Identify the stack, languages, frameworks, entry points, trust boundaries, data sensitivity, auth model, third-party dependencies, and deployment targets.
+2. **Automated Pattern Scanning Simulation:** Run/simulate SAST, dependency/SCA, secret scanning, and IaC scanning.
+3. **Manual Review Checklist:** Walk the relevant audit process steps below. Focus on issues tools miss: broken access control (BOLA/IDOR), business logic flaws, race conditions, design flaws, and complex attack chains.
+4. **Validation & Triage:** Confirm true positives via code tracing (source → sink).
+5. **Reporting:** Produce a structured, risk-rated report.
+
+## Audit Process
+
+Examine the codebase systematically. Skip steps that aren't relevant to the current technology stack.
+
+1. **Secrets & Environment Variables** — Scan for hardcoded API keys, tokens, or credentials. Check for secrets exposed via client-side env var prefixes (`NEXT_PUBLIC_`, `VITE_`, `EXPO_PUBLIC_`). Verify `.env` is in `.gitignore`.
+2. **Database Access Control** — Check Supabase RLS policies, Firebase Security Rules, or Convex auth guards. This is the #1 source of critical vulnerabilities in vibe-coded apps.
+3. **Authentication & Authorization** — Validate JWT handling (reject `alg:none`, algorithm confusion), middleware auth, Server Action protection, password reset flows, and session management. Enforce server-side authorization on every object (BOLA prevention) and function.
+4. **Rate Limiting & Abuse Prevention** — Ensure auth endpoints, AI calls, and expensive operations have rate limits (Unrestricted Resource Consumption). Verify rate limit counters can't be tampered with.
+5. **Payment Security & Business Logic** — Check for client-side price manipulation, webhook signature verification, discount stacking, workflow circumvention, and DDo$ (Distributed Denial of Dollars).
+6. **Mobile Security & Deep Links** — Verify secure token storage (Keychain/Keystore), API key protection, intent redirection, deep-link/URL-scheme hijacking, and insufficient binary protections.
+7. **AI / LLM Integration (OWASP LLM Top 10)** — Check for exposed AI API keys, missing usage caps, Direct and Indirect Prompt Injection vectors, Excessive Agency in agentic workflows, and unsafe output rendering (Improper Output Handling).
+8. **Deployment Configuration** — Verify production settings, security headers (CSP, HSTS), source map exposure, and environment separation.
+9. **Data Access & Input Validation** — Check for SQL injection, NoSQL operator injection (`$ne`, `$where`), ORM misuse, and missing input validation.
+10. **Web Vulnerabilities (OWASP Top 10 2025)** — Check for XSS (DOM/Stored/Reflected), CSRF, SSRF (metadata service exploitation), CORS misconfigurations (wildcard + credentials), HTTP Request Smuggling, and Clickjacking.
+11. **API, GraphQL & gRPC Security** — Prevent REST IDOR/BOLA, GraphQL introspection/batching attacks, deep nested query DoS, gRPC mTLS failures, and HPACK desynchronization.
+12. **File Upload Security & Deserialization** — Verify MIME type checks, limit sizes, isolate uploaded files, and prevent insecure deserialization (Pickle, native Java).
+13. **Cloud & Infrastructure Security** — Secure S3 buckets (Block Public Access), enforce IAM Least Privilege (no `*`), prevent IMDSv1 SSRF credential theft, and manage IaC (Terraform) secrets.
+14. **CI/CD & Supply Chain (OWASP CI/CD Top 10)** — Secure GitHub Actions workflows, prevent Poisoned Pipeline Execution (PPE), avoid untrusted fork PR triggers, and manage NPM dependency risks (Dependency Confusion).
+15. **Container & Kubernetes Security** — Ensure non-root users, minimal base images, secure port mapping, least-privilege RBAC, and prevent exposed dashboards or privileged pods.
+16. **Cryptography Best Practices** — Verify secure password hashing (Argon2/bcrypt), CSPRNG for random tokens, and proper encryption modes (TLS 1.3, AES-GCM).
+17. **Advanced & Emerging Threats** — Catch overlooked flaws like Race Conditions (TOCTOU), Prototype Pollution to RCE, Server-Side Template Injection (SSTI), Web Cache Poisoning, and Subdomain Takeover.
+18. **Smart Contracts & Web3** — (If applicable) Audit for Reentrancy (CEI pattern), Flash Loan price oracle manipulation, and arithmetic rounding errors.
+19. **Low-Level Memory Safety** — (If applicable) Detect Memory Leaks, Use-After-Free (UAF), and Buffer Overflows in C/C++ native addons or backend binaries.
+
+## Severity / Risk Rating Guidance
+
+Use a CVSS-style mental model of **Likelihood × Impact**.
+- **Exploitability:** attack vector (network/adjacent/local), complexity, privileges required, user interaction.
+- **Impact:** confidentiality, integrity, availability; blast radius; chaining potential (e.g., SSRF → cloud metadata → account takeover).
+- **Context multipliers:** data sensitivity, exposure (internet-facing vs internal), compensating controls.
+
+Assign Critical / High / Medium / Low / Info.
+
+## Output Format
+
+Organize findings by severity: **Critical** → **High** → **Medium** → **Low**.
+
+For each issue:
+1. **Title and Classification:** Include CWE ID and OWASP category.
+2. **Location:** State the file, relevant line(s), endpoint, or resource.
+3. **Severity:** Rating + short CVSS-style justification.
+4. **Vulnerability & Root Cause:** Name it and explain the architectural/code reason.
+5. **Attack Scenario (Impact):** Explain what an attacker could do (concrete, defensive explanation).
+6. **Remediation:** Show a before/after code fix or secure configuration.
+
+Skip areas with no issues. End with a prioritized summary/remediation roadmap.
+
+### Example Output
+
+#### Critical
+
+**`lib/supabase.ts:3` — Supabase `service_role` key exposed in client bundle (CWE-798; OWASP A02:2025)**
+
+- **Severity:** Critical (High Likelihood x High Impact).
+- **Root Cause & Impact:** The `service_role` key bypasses all Row-Level Security. It is exposed via a client-side environment variable. Anyone can extract it from the browser bundle and read, modify, or delete every row in your database.
+- **Remediation:** Rotate the key immediately and move it to server-side only. Use the anon key client-side.
+
+```typescript
+// Before
+const supabase = createClient(url, process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY!)
+
+// After
+const supabase = createClient(url, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+```
+
+#### High
+
+**`app/api/checkout/route.ts:15` — Price taken from client request body (CWE-602; OWASP A06:2025 Insecure Design)**
+
+- **Severity:** High (High Likelihood x Medium Impact).
+- **Root Cause & Impact:** The application trusts the client-provided `req.body.price`. An attacker can set any price (including $0.01) by modifying the request intercepting the traffic. Prices must be looked up server-side.
+- **Remediation:** Look up the price server-side using the product ID.
+
+```typescript
+// Before
+const session = await stripe.checkout.sessions.create({
+  line_items: [{ price_data: { unit_amount: req.body.price } }]
+})
+
+// After
+const product = await db.products.findUnique({ where: { id: req.body.productId } })
+const session = await stripe.checkout.sessions.create({
+  line_items: [{ price: product.stripePriceId }]
+})
+```
+
+## Proactive Generation Guardrails
+
+When generating new code, these rules apply proactively. Before writing code that touches auth, payments, database access, APIs, AI integrations, or user data, consult these security principles to avoid introducing the vulnerability in the first place. Prevention is better than detection. If you find a critical issue, flag it immediately at the top of your response.
