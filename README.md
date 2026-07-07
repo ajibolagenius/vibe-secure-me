@@ -2,19 +2,28 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-**Vibe Secure Me** is a comprehensive, framework-agnostic security auditor plugin for Google Antigravity. It is designed to audit codebases for common vulnerabilities introduced by AI coding assistants in "vibe-coded" applications, as well as complex enterprise attack vectors across web, API, mobile, cloud, low-level architecture, and agentic AI platforms.
+**Vibe Secure Me** is a comprehensive, framework-agnostic security auditor skill designed for agentic AI assistants (like Claude, Gemini, Codex, and Cursor). It equips your AI coding assistant with the knowledge to audit codebases for common vulnerabilities introduced during "vibe-coding", as well as complex enterprise attack vectors across web, API, mobile, cloud, and AI platforms.
 
 ## Features
 
-- **Automated Security Scanning Simulation:** Acts as a specialized security expert to review your architecture and code.
+- **Automated Security Scanning Simulation:** Empowers your AI to act as a specialized security expert to review your architecture and code.
 - **OWASP Alignment:** Maps to authoritative baselines including OWASP Top 10, API Security Top 10, Mobile Top 10, and LLM Applications Top 10.
-- **Deep Architectural Review:** Looks beyond surface-level issues to find broken access controls (BOLA/IDOR), business logic flaws, and race conditions.
+- **Deep Architectural Review:** Guides the AI to look beyond surface-level issues to find broken access controls (BOLA/IDOR), business logic flaws, and race conditions.
 - **Remediation Guidance:** Provides concrete secure-code remediation examples without outputting exploitative payloads.
 
 ## Installation
 
-You can install this plugin directly from your terminal using the Antigravity CLI (`agy`):
+You can install this skill into your project so your AI assistant can access it.
 
+**Method 1: Manual Drop-in (Works for any AI IDE / Agent)**
+Copy the `SKILL.md` contents into your AI's custom instructions file (e.g., `.cursorrules`, `.windsurfrules`, `CLAUDE.md`, or your agent's system prompt).
+Alternatively, clone this repository directly into your project's agent skills directory:
+```bash
+git clone https://github.com/ajibolagenius/vibe-secure-me.git .agent-skills/secure-me
+```
+
+**Method 2: Via Antigravity CLI**
+If you are using Google Antigravity, you can install it directly as a plugin:
 ```bash
 agy plugin install https://github.com/ajibolagenius/vibe-secure-me.git
 ```

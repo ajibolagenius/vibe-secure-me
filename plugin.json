@@ -1,7 +1,7 @@
 {
   "name": "vibe-secure-me",
   "version": "1.0.0",
-  "description": "Comprehensive, framework-agnostic security auditor skill for Antigravity",
+  "description": "Comprehensive, framework-agnostic security auditor skill for agentic AI assistants (Claude, Gemini, Codex, etc.)",
   "author": {
     "name": "Ajibola Akelebe"
   },
