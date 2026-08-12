@@ -17,6 +17,8 @@ jobs:
       # Actions are pinned to commit SHAs: a mutable tag can be repointed at
       # attacker code that would then run inside this workflow.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # tags needed by the installer ref-resolution test
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -82,3 +84,20 @@ jobs:
           test -f "$RUNNER_TEMP/skills/secure-me/SKILL.md"
           test -d "$RUNNER_TEMP/skills/secure-me/references"
           node bin/cli.js uninstall --dir "$RUNNER_TEMP/skills"
+
+      # codeload resolves branches and SHAs from the bare path but 404s there
+      # for an annotated tag, which silently broke every pinned curl install.
+      # Both forms are exercised so that cannot regress.
+      - name: Smoke-test curl installer ref resolution
+        run: |
+          SECURE_ME_REF="$GITHUB_SHA" SECURE_ME_DIR="$RUNNER_TEMP/by-sha" bash install.sh
+          test -f "$RUNNER_TEMP/by-sha/secure-me/SKILL.md"
+
+          tag="$(git describe --tags --abbrev=0 2>/dev/null || true)"
+          if [ -n "$tag" ]; then
+            SECURE_ME_REF="$tag" SECURE_ME_DIR="$RUNNER_TEMP/by-tag" bash install.sh
+            test -f "$RUNNER_TEMP/by-tag/secure-me/SKILL.md"
+            echo "Verified tag ref: $tag"
+          else
+            echo "No tag exists yet; refs/tags path not exercised"
+          fi

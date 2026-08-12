@@ -15,7 +15,7 @@ REPO="${SECURE_ME_REPO:-ajibolagenius/vibe-secure-me}"
 # instructions by an agent, so tracking a moving ref means any push to that
 # branch lands in every user's agent context. CI keeps this in step with
 # package.json; see .github/workflows/validate.yml.
-PINNED_REF="v1.3.0"
+PINNED_REF="v1.3.1"
 REF="${SECURE_ME_REF:-$PINNED_REF}"
 SKILLS_DIR="${SECURE_ME_DIR:-$HOME/.claude/skills}"
 TARGET="$SKILLS_DIR/secure-me"
@@ -35,9 +35,25 @@ TMP="$(mktemp -d 2>/dev/null || mktemp -d -t vibe-secure-me)"
 trap 'rm -rf "$TMP"' EXIT
 
 printf '%sDownloading vibe-secure-me@%s%s\n' "$BOLD" "$REF" "$RESET"
-curl -fsSL "https://codeload.github.com/$REPO/tar.gz/$REF" \
-  | tar -xz -C "$TMP" --strip-components=1 \
-  || die "Download failed. Check that $REPO exists and '$REF' is a valid ref."
+
+# codeload serves branches and commit SHAs from the bare path, but an
+# annotated tag 404s there and must be requested as refs/tags/<tag>. Try the
+# tag form first so the default pinned release resolves, then fall back to
+# the bare path for branches and SHAs.
+ARCHIVE="$TMP/source.tar.gz"
+downloaded=""
+for ref_path in "refs/tags/$REF" "$REF"; do
+  if curl -fsSL "https://codeload.github.com/$REPO/tar.gz/$ref_path" -o "$ARCHIVE" 2>/dev/null; then
+    downloaded="yes"
+    break
+  fi
+done
+[ -n "$downloaded" ] || die "Download failed. Check that $REPO exists and '$REF' is a valid ref."
+
+# Download fully before extracting, so a truncated transfer cannot leave a
+# half-populated source tree that still looks installable.
+tar -xzf "$ARCHIVE" -C "$TMP" --strip-components=1 \
+  || die "Downloaded archive could not be extracted."
 
 SRC="$TMP/skills/secure-me"
 [ -f "$SRC/SKILL.md" ] || die "Downloaded archive does not contain skills/secure-me/SKILL.md — aborting."
