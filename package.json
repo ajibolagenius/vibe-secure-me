@@ -1,0 +1,43 @@
+{
+  "name": "vibe-secure-me",
+  "version": "1.1.0",
+  "description": "Framework-agnostic security auditor skill for agentic AI assistants. Audits codebases against OWASP Top 10:2025, API/Mobile/CI-CD/LLM Top 10, and CWE.",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "agent-skill",
+    "antigravity",
+    "security",
+    "security-audit",
+    "owasp",
+    "cwe",
+    "appsec",
+    "secure-code-review"
+  ],
+  "homepage": "https://github.com/ajibolagenius/vibe-secure-me#readme",
+  "bugs": "https://github.com/ajibolagenius/vibe-secure-me/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajibolagenius/vibe-secure-me.git"
+  },
+  "license": "MIT",
+  "author": "Ajibola Akelebe",
+  "type": "module",
+  "bin": {
+    "vibe-secure-me": "bin/cli.js"
+  },
+  "files": [
+    "skills/",
+    "bin/",
+    ".claude-plugin/",
+    "plugin.json",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node bin/cli.js verify"
+  }
+}

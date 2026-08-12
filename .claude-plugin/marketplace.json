@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "vibe-secure-me",
+  "description": "Security auditing skills for agentic AI coding assistants.",
+  "owner": {
+    "name": "Ajibola Akelebe",
+    "url": "https://github.com/ajibolagenius"
+  },
+  "plugins": [
+    {
+      "name": "vibe-secure-me",
+      "source": "./",
+      "description": "Framework-agnostic security auditor for AI-generated and enterprise codebases. Maps findings to OWASP Top 10:2025, API Top 10, Mobile Top 10, CI/CD Top 10, LLM Top 10, and CWE.",
+      "category": "security",
+      "tags": ["security", "owasp", "audit", "appsec", "code-review"],
+      "license": "MIT"
+    }
+  ]
+}
