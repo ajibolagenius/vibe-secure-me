@@ -28,6 +28,11 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
+      # Trusted publishing needs npm 11.5.1+; Node 20 ships npm 10.x, which
+      # would fall back to looking for a token that no longer exists here.
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
+
       # Never publish an artifact that has not passed the same gates as a PR.
       - name: Verify payload and corpus
         run: npm test
@@ -48,7 +53,15 @@ jobs:
             console.log('Tag matches:', tag);
           "
 
+      # No NODE_AUTH_TOKEN: npm exchanges the OIDC id-token above for a
+      # short-lived, single-publish credential. There is no long-lived secret
+      # to leak, rotate, or have stolen, and the registry enforces that the
+      # publish came from this repo and this workflow file. Provenance is
+      # generated automatically on a trusted publish; the flag is kept so a
+      # regression to token auth cannot silently drop the attestation.
+      #
+      # Requires a one-time setup on npmjs.com:
+      #   Package -> Settings -> Trusted Publisher -> GitHub Actions
+      #   Repository: ajibolagenius/vibe-secure-me   Workflow: publish.yml
       - name: Publish to npm with provenance
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
