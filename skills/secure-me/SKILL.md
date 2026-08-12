@@ -4,7 +4,8 @@ description: Comprehensive, framework-agnostic security auditor. Audits codebase
 license: MIT
 metadata:
   author: Ajibola Akelebe - Open Source Community
-  version: "3.0"
+  version: "3.1.0"
+  homepage: https://github.com/ajibolagenius/vibe-secure-me
 ---
 
 # Security Audit Skill (secure-me)
@@ -50,6 +51,33 @@ Examine the codebase systematically. Skip steps that aren't relevant to the curr
 17. **Advanced & Emerging Threats** — Catch overlooked flaws like Race Conditions (TOCTOU), Prototype Pollution to RCE, Server-Side Template Injection (SSTI), Web Cache Poisoning, and Subdomain Takeover.
 18. **Smart Contracts & Web3** — (If applicable) Audit for Reentrancy (CEI pattern), Flash Loan price oracle manipulation, and arithmetic rounding errors.
 19. **Low-Level Memory Safety** — (If applicable) Detect Memory Leaks, Use-After-Free (UAF), and Buffer Overflows in C/C++ native addons or backend binaries.
+
+## Reference Files
+
+Do not read these upfront. When an audit step applies to the codebase under review, read the matching file(s) before reporting on that area — they carry the detailed root causes, attack scenarios, and before/after remediation code that this file only summarizes.
+
+| Audit step | Read |
+| --- | --- |
+| 1. Secrets & env vars | `references/secrets-and-env.md` |
+| 2. Database access control | `references/database-security.md` |
+| 3. Authentication & authorization | `references/authentication.md` |
+| 4. Rate limiting & abuse | `references/rate-limiting.md` |
+| 5. Payments & business logic | `references/payments.md` |
+| 6. Mobile & deep links | `references/mobile.md`, `references/mobile-security-reference.md` |
+| 7. AI / LLM integration | `references/ai-integration.md`, `references/ai-and-advanced-reference.md` |
+| 8. Deployment configuration | `references/deployment.md` |
+| 9. Data access & input validation | `references/data-access.md` |
+| 10. Web vulnerabilities | `references/web-vulnerabilities.md`, `references/web-security-reference.md` |
+| 11. API, GraphQL & gRPC | `references/api-security.md`, `references/web-security-reference.md` |
+| 12. File uploads & deserialization | `references/file-uploads.md` |
+| 13. Cloud & infrastructure | `references/cloud-infrastructure.md`, `references/cloud-security-reference.md` |
+| 14. CI/CD & supply chain | `references/cicd-supply-chain.md` |
+| 15. Containers & Kubernetes | `references/container-security.md` |
+| 16. Cryptography | `references/cryptography.md` |
+| 17. Advanced & emerging threats | `references/advanced-threats.md` |
+| 18–19. Smart contracts, memory safety | `references/ai-and-advanced-reference.md` |
+
+Files named `*-reference.md` are the OWASP/CWE-mapped root-cause summaries; the others carry stack-specific code examples. Read both when an area is central to the audit.
 
 ## Severity / Risk Rating Guidance
 
