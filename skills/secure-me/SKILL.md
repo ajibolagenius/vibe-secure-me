@@ -4,7 +4,7 @@ description: Comprehensive, framework-agnostic security auditor. Audits codebase
 license: MIT
 metadata:
   author: Ajibola Akelebe - Open Source Community
-  version: "3.1.0"
+  version: "3.2.0"
   homepage: https://github.com/ajibolagenius/vibe-secure-me
 ---
 
@@ -22,11 +22,40 @@ Never trust the client. Every price, user ID, role, subscription status, feature
 
 ## Audit Methodology (Workflow)
 
+Use this workflow when reviewing code that exists. If the target is a design, architecture, or proposal with no implementation to read, use **Threat Modeling Mode** below instead.
+
 1. **Reconnaissance & Scoping:** Identify the stack, languages, frameworks, entry points, trust boundaries, data sensitivity, auth model, third-party dependencies, and deployment targets.
 2. **Automated Pattern Scanning Simulation:** Run/simulate SAST, dependency/SCA, secret scanning, and IaC scanning.
 3. **Manual Review Checklist:** Walk the relevant audit process steps below. Focus on issues tools miss: broken access control (BOLA/IDOR), business logic flaws, race conditions, design flaws, and complex attack chains.
 4. **Validation & Triage:** Confirm true positives via code tracing (source → sink).
 5. **Reporting:** Produce a structured, risk-rated report.
+
+## Threat Modeling Mode (STRIDE)
+
+The Audit Process below reviews code that exists. Use this mode instead when there is no code to read yet, or when the question is about a design rather than an implementation — a proposed architecture, a new feature's data flow, an RFC, a diagram, or a request to "threat-model" something. Findings here are design risks, not located vulnerabilities, so do not report file/line references you have not verified.
+
+**Procedure:**
+
+1. **Decompose.** List the actors (human and machine), processes, data stores, and data flows. State what each flow carries and where it terminates.
+2. **Draw trust boundaries.** Mark every point where data or control crosses between principals of different privilege: client → server, tenant → tenant, service → service, user code → sandbox, agent → tool. Threats concentrate here; a design with no articulated boundaries is the finding.
+3. **Classify assets.** Rank what an attacker wants — credentials, PII, money movement, compute, model access — and note which boundaries protect each.
+4. **Apply STRIDE per element.** Walk the table below against each process, store, and flow. An element with no plausible threat in a category is a legitimate answer; say so rather than inventing one.
+5. **Rate and propose controls.** Use the same Likelihood × Impact model as the Audit Process. Propose a control per accepted risk, and name the risks the design deliberately accepts.
+
+**STRIDE categories:**
+
+| Threat | Violates | Ask | Typical controls | Related audit step |
+| --- | --- | --- | --- | --- |
+| **S**poofing | Authentication | Can an actor claim another's identity? | MFA, mTLS, signed tokens, short-lived credentials, attestation | 3, 6 |
+| **T**ampering | Integrity | Can data or code be modified in transit, at rest, or in the pipeline? | Signatures, TLS 1.3, integrity checks, immutable builds, webhook verification | 5, 14, 16 |
+| **R**epudiation | Non-repudiation | Can an actor deny an action with no evidence? | Append-only audit logs, signed receipts, tamper-evident storage | 8 |
+| **I**nformation disclosure | Confidentiality | Can data leak across a boundary, through errors, or via inference? | Least privilege, encryption, RLS/tenant scoping, output filtering, scrubbed errors | 1, 2, 9 |
+| **D**enial of service | Availability | Can an actor exhaust compute, storage, quota, or budget? | Rate limits, quotas, timeouts, backpressure, spend caps | 4, 5 |
+| **E**levation of privilege | Authorization | Can an actor gain capability they were not granted? | Deny-by-default authorization, per-object checks, sandboxing, human-in-the-loop on destructive actions | 3, 7, 13, 15 |
+
+Pay particular attention to **T** in the build pipeline, **I** across tenant boundaries, and **E** wherever an agent or LLM can invoke tools — these are the three most commonly omitted from design reviews.
+
+**Output:** a table of `element | threat category | scenario | severity | proposed control`, then the accepted-risk list, then the highest-leverage design changes ranked by risk reduced. When the design is later implemented, hand off to the Audit Process to verify the controls exist in code.
 
 ## Audit Process
 

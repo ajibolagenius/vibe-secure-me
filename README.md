@@ -73,9 +73,21 @@ install.sh                       curl installer
 ## Development
 
 ```bash
-node bin/cli.js verify      # check the packaged skill is well-formed
+npm test                    # verify the packaged skill and the benchmark corpus
 claude plugin validate .    # check the Claude Code manifests
 ```
+
+### Benchmark suite
+
+`tests/` holds a corpus of 16 known-vulnerable cases and 4 control cases — code that superficially resembles a vulnerability but is correctly written. Control cases matter as much as detection ones: an auditor that flags everything has perfect recall and no value, so a finding raised against a control case counts as a false positive.
+
+```bash
+node tests/run.js validate            # corpus integrity (runs in CI)
+node tests/run.js manifest            # emit the audit worklist for an eval run
+node tests/run.js score results.json  # recall and false-positive rate
+```
+
+CI validates corpus integrity only. Scoring detection quality requires running an agent over the fixtures — see [tests/README.md](tests/README.md).
 
 CI runs both on every push, plus a version-agreement check across `package.json`, `plugin.json`, and `.claude-plugin/plugin.json` — bump all three together when releasing. `SKILL.md` carries its own independent content version.
 
