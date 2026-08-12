@@ -4,13 +4,19 @@
 #   curl -fsSL https://raw.githubusercontent.com/ajibolagenius/vibe-secure-me/main/install.sh | bash
 #
 # Environment overrides:
-#   SECURE_ME_REF=v1.1.0             install a specific tag or branch (default: main)
+#   SECURE_ME_REF=main               track the branch instead of the pinned release
 #   SECURE_ME_DIR=./.claude/skills   install into a project instead of $HOME
+#   SECURE_ME_REPO=owner/repo        install from a fork
 
 set -euo pipefail
 
 REPO="${SECURE_ME_REPO:-ajibolagenius/vibe-secure-me}"
-REF="${SECURE_ME_REF:-main}"
+# Default to an immutable release tag, not a branch. SKILL.md is executed as
+# instructions by an agent, so tracking a moving ref means any push to that
+# branch lands in every user's agent context. CI keeps this in step with
+# package.json; see .github/workflows/validate.yml.
+PINNED_REF="v1.3.0"
+REF="${SECURE_ME_REF:-$PINNED_REF}"
 SKILLS_DIR="${SECURE_ME_DIR:-$HOME/.claude/skills}"
 TARGET="$SKILLS_DIR/secure-me"
 
@@ -36,11 +42,18 @@ curl -fsSL "https://codeload.github.com/$REPO/tar.gz/$REF" \
 SRC="$TMP/skills/secure-me"
 [ -f "$SRC/SKILL.md" ] || die "Downloaded archive does not contain skills/secure-me/SKILL.md — aborting."
 
-# Back up an existing install rather than silently destroying it.
+# Back up an existing install rather than silently destroying it, keeping
+# only the two most recent so repeated updates do not litter the skills
+# directory an agent scans.
 if [ -d "$TARGET" ]; then
   BACKUP="$TARGET.backup.$(date +%Y%m%d%H%M%S)"
   mv "$TARGET" "$BACKUP"
   printf '%sExisting install moved to %s%s\n' "$DIM" "$BACKUP" "$RESET"
+
+  ls -d "$TARGET".backup.* 2>/dev/null \
+    | sort -r \
+    | tail -n +3 \
+    | while IFS= read -r old; do rm -rf "$old"; done
 fi
 
 mkdir -p "$TARGET"
