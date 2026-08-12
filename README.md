@@ -32,7 +32,15 @@ Installs into `~/.claude/skills/secure-me`. Use `--project` to install into `./.
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ajibolagenius/vibe-secure-me/main/install.sh | bash
 ```
-Pin a release with `SECURE_ME_REF=v1.1.0`, or install into a project with `SECURE_ME_DIR=./.claude/skills`. An existing install is moved to a timestamped backup rather than overwritten.
+This installs the pinned release, not the tip of `main`. `SKILL.md` is read as instructions by an agent, so tracking a moving branch would mean any push lands directly in your agent's context — the installer defaults to an immutable tag instead.
+
+| Variable | Effect |
+| --- | --- |
+| `SECURE_ME_REF` | Install a different tag, or `main` to track the branch |
+| `SECURE_ME_DIR` | Install into a project, e.g. `./.claude/skills` |
+| `SECURE_ME_REPO` | Install from a fork, as `owner/repo` |
+
+An existing install is moved to a timestamped backup rather than overwritten; the two most recent backups are kept and older ones removed.
 
 **Method 4: Via Claude Code plugin**
 ```
@@ -90,6 +98,14 @@ node tests/run.js score results.json  # recall and false-positive rate
 CI validates corpus integrity only. Scoring detection quality requires running an agent over the fixtures — see [tests/README.md](tests/README.md).
 
 CI runs both on every push, plus a version-agreement check across `package.json`, `plugin.json`, and `.claude-plugin/plugin.json` — bump all three together when releasing. `SKILL.md` carries its own independent content version.
+
+### Releasing
+
+1. Bump the version in `package.json`, `plugin.json`, and `.claude-plugin/plugin.json`.
+2. Bump `PINNED_REF` in `install.sh` to match. CI fails if it drifts, so this can't be forgotten silently.
+3. Merge, then publish a GitHub release tagged `v<version>`.
+
+The release triggers `.github/workflows/publish.yml`, which re-runs the checks and publishes to npm with [provenance](https://docs.npmjs.com/generating-provenance-statements) — a signed attestation linking the published tarball to the commit and workflow that produced it. Publishing by hand from a laptop produces no such attestation, so prefer the release flow. It requires an `NPM_TOKEN` secret with publish rights.
 
 ## Contributing
 

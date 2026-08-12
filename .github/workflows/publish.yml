@@ -1,0 +1,54 @@
+name: publish
+
+# Publishing from CI rather than a laptop is what makes provenance possible:
+# npm records a signed, verifiable link between the tarball on the registry
+# and the commit and workflow that built it. A package published by hand has
+# no such attestation, so consumers cannot tell a legitimate release from one
+# pushed with a stolen token.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # required for npm provenance
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      # Never publish an artifact that has not passed the same gates as a PR.
+      - name: Verify payload and corpus
+        run: npm test
+
+      # The git tag, package.json, and the installer's pin must all agree, or
+      # the release, the registry, and the curl route disagree about what
+      # "v1.3.0" means.
+      - name: Check tag matches package version
+        if: github.event_name == 'release'
+        run: |
+          node -e "
+            const version = require('./package.json').version;
+            const tag = process.env.GITHUB_REF_NAME;
+            if (tag !== 'v' + version) {
+              console.error(\`Tag \${tag} does not match package.json version \${version}\`);
+              process.exit(1);
+            }
+            console.log('Tag matches:', tag);
+          "
+
+      - name: Publish to npm with provenance
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
