@@ -1,6 +1,6 @@
 {
   "name": "vibe-secure-me",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Framework-agnostic security auditor skill for agentic AI assistants. Audits codebases against OWASP Top 10:2025, API/Mobile/CI-CD/LLM Top 10, and CWE.",
   "keywords": [
     "claude",
@@ -38,6 +38,6 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node bin/cli.js verify"
+    "test": "node bin/cli.js verify && node tests/run.js validate"
   }
 }

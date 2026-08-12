@@ -47,6 +47,11 @@ jobs:
             console.log('Versions agree:', versions);
           "
 
+      # Corpus integrity only. Scoring detection quality needs a real agent
+      # run over the fixtures — see tests/README.md.
+      - name: Validate benchmark corpus
+        run: node tests/run.js validate
+
       - name: Lint install.sh
         run: shellcheck install.sh
 

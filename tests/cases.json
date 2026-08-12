@@ -1,0 +1,233 @@
+{
+  "$comment": "Benchmark corpus for the secure-me skill. `detect` cases contain a real vulnerability the skill must find. `control` cases look suspicious but are correctly written — reporting a finding on one is a false positive. See tests/README.md.",
+  "cases": [
+    {
+      "id": "supabase-service-key-in-client",
+      "kind": "detect",
+      "stack": "next.js",
+      "step": 1,
+      "cwe": "CWE-798",
+      "owasp": "A02:2025",
+      "severity": "critical",
+      "vulnerable": "vulnerable.ts",
+      "fixed": "fixed.ts",
+      "expect": "service_role key exposed to the browser through a NEXT_PUBLIC_ environment variable, bypassing row-level security"
+    },
+    {
+      "id": "supabase-rls-disabled",
+      "kind": "detect",
+      "stack": "supabase",
+      "step": 2,
+      "cwe": "CWE-284",
+      "owasp": "A01:2025",
+      "severity": "critical",
+      "vulnerable": "vulnerable.sql",
+      "fixed": "fixed.sql",
+      "expect": "table holds per-user rows but row-level security is never enabled, so any authenticated client reads every row"
+    },
+    {
+      "id": "firebase-open-rules",
+      "kind": "detect",
+      "stack": "firebase",
+      "step": 2,
+      "cwe": "CWE-284",
+      "owasp": "A01:2025",
+      "severity": "critical",
+      "vulnerable": "vulnerable.rules",
+      "fixed": "fixed.rules",
+      "expect": "security rules allow read and write to any authenticated user with no ownership check"
+    },
+    {
+      "id": "jwt-alg-none-accepted",
+      "kind": "detect",
+      "stack": "node",
+      "step": 3,
+      "cwe": "CWE-347",
+      "owasp": "A07:2025",
+      "severity": "critical",
+      "vulnerable": "vulnerable.js",
+      "fixed": "fixed.js",
+      "expect": "token verified without pinning an algorithm, allowing alg:none and HMAC/RSA confusion to forge tokens"
+    },
+    {
+      "id": "server-action-missing-auth",
+      "kind": "detect",
+      "stack": "next.js",
+      "step": 3,
+      "cwe": "CWE-862",
+      "owasp": "A01:2025",
+      "severity": "high",
+      "vulnerable": "vulnerable.ts",
+      "fixed": "fixed.ts",
+      "expect": "Server Action is a public endpoint but performs a privileged delete with no session or role check"
+    },
+    {
+      "id": "idor-missing-ownership-check",
+      "kind": "detect",
+      "stack": "go",
+      "step": 3,
+      "cwe": "CWE-639",
+      "owasp": "A01:2025",
+      "severity": "high",
+      "vulnerable": "vulnerable.go",
+      "fixed": "fixed.go",
+      "expect": "handler fetches a record by client-supplied ID without verifying the caller owns it (BOLA/IDOR)"
+    },
+    {
+      "id": "client-controlled-price",
+      "kind": "detect",
+      "stack": "node",
+      "step": 5,
+      "cwe": "CWE-602",
+      "owasp": "A04:2025",
+      "severity": "high",
+      "vulnerable": "vulnerable.js",
+      "fixed": "fixed.js",
+      "expect": "charge amount is taken from the request body instead of looked up server-side, letting a client set any price"
+    },
+    {
+      "id": "stripe-webhook-unverified",
+      "kind": "detect",
+      "stack": "node",
+      "step": 5,
+      "cwe": "CWE-345",
+      "owasp": "A08:2025",
+      "severity": "critical",
+      "vulnerable": "vulnerable.js",
+      "fixed": "fixed.js",
+      "expect": "webhook handler trusts the payload without verifying the Stripe signature, so anyone can forge payment events"
+    },
+    {
+      "id": "sql-injection-concat",
+      "kind": "detect",
+      "stack": "python",
+      "step": 9,
+      "cwe": "CWE-89",
+      "owasp": "A03:2025",
+      "severity": "critical",
+      "vulnerable": "vulnerable.py",
+      "fixed": "fixed.py",
+      "expect": "user input concatenated into a SQL string instead of passed as a bound parameter"
+    },
+    {
+      "id": "nosql-operator-injection",
+      "kind": "detect",
+      "stack": "node",
+      "step": 9,
+      "cwe": "CWE-943",
+      "owasp": "A03:2025",
+      "severity": "high",
+      "vulnerable": "vulnerable.js",
+      "fixed": "fixed.js",
+      "expect": "request body passed directly into a Mongo query, letting an attacker inject operators such as $ne to bypass the check"
+    },
+    {
+      "id": "react-xss-dangerous-html",
+      "kind": "detect",
+      "stack": "react",
+      "step": 10,
+      "cwe": "CWE-79",
+      "owasp": "A05:2025",
+      "severity": "high",
+      "vulnerable": "vulnerable.tsx",
+      "fixed": "fixed.tsx",
+      "expect": "untrusted content rendered through dangerouslySetInnerHTML with no sanitization"
+    },
+    {
+      "id": "ssrf-cloud-metadata",
+      "kind": "detect",
+      "stack": "python",
+      "step": 10,
+      "cwe": "CWE-918",
+      "owasp": "A10:2025",
+      "severity": "critical",
+      "vulnerable": "vulnerable.py",
+      "fixed": "fixed.py",
+      "expect": "server fetches a user-supplied URL with no allowlist, reachable to the cloud metadata endpoint for credential theft"
+    },
+    {
+      "id": "cors-wildcard-with-credentials",
+      "kind": "detect",
+      "stack": "node",
+      "step": 10,
+      "cwe": "CWE-942",
+      "owasp": "A05:2025",
+      "severity": "high",
+      "vulnerable": "vulnerable.js",
+      "fixed": "fixed.js",
+      "expect": "origin is reflected back with credentials enabled, letting any site make authenticated cross-origin requests"
+    },
+    {
+      "id": "weak-password-hash",
+      "kind": "detect",
+      "stack": "python",
+      "step": 16,
+      "cwe": "CWE-916",
+      "owasp": "A02:2025",
+      "severity": "high",
+      "vulnerable": "vulnerable.py",
+      "fixed": "fixed.py",
+      "expect": "passwords hashed with a fast unsalted digest instead of a memory-hard KDF"
+    },
+    {
+      "id": "insecure-random-token",
+      "kind": "detect",
+      "stack": "node",
+      "step": 16,
+      "cwe": "CWE-338",
+      "owasp": "A02:2025",
+      "severity": "high",
+      "vulnerable": "vulnerable.js",
+      "fixed": "fixed.js",
+      "expect": "password reset token generated with Math.random, which is predictable and not a CSPRNG"
+    },
+    {
+      "id": "agent-tool-indirect-injection",
+      "kind": "detect",
+      "stack": "python",
+      "step": 7,
+      "cwe": "CWE-77",
+      "owasp": "LLM01:2025",
+      "severity": "critical",
+      "vulnerable": "vulnerable.py",
+      "fixed": "fixed.py",
+      "expect": "untrusted fetched content is fed to an agent that can invoke a shell tool with no isolation or approval, enabling indirect prompt injection to command execution"
+    },
+    {
+      "id": "control-parameterized-query",
+      "kind": "control",
+      "stack": "python",
+      "step": 9,
+      "vulnerable": null,
+      "fixed": "fixed.py",
+      "expect": "an allowlisted column name is interpolated while all user values are bound parameters; this is correct and must not be reported as SQL injection"
+    },
+    {
+      "id": "control-sanitized-html",
+      "kind": "control",
+      "stack": "react",
+      "step": 10,
+      "vulnerable": null,
+      "fixed": "fixed.tsx",
+      "expect": "dangerouslySetInnerHTML is used with DOMPurify sanitization and a restrictive allowlist; this is correct and must not be reported as XSS"
+    },
+    {
+      "id": "control-public-anon-key",
+      "kind": "control",
+      "stack": "next.js",
+      "step": 1,
+      "vulnerable": null,
+      "fixed": "fixed.ts",
+      "expect": "the Supabase anon key is publishable by design and is paired with row-level security; exposing it client-side is correct and must not be reported as a leaked secret"
+    },
+    {
+      "id": "control-scoped-cors",
+      "kind": "control",
+      "stack": "node",
+      "step": 10,
+      "vulnerable": null,
+      "fixed": "fixed.js",
+      "expect": "credentials are enabled but the origin is checked against a static allowlist; this is correct and must not be reported as a CORS misconfiguration"
+    }
+  ]
+}
