@@ -42,5 +42,8 @@
   },
   "scripts": {
     "test": "node bin/cli.js verify && node tests/run.js validate"
+  },
+  "dependencies": {
+    "vibe-secure-me": "^2.0.0"
   }
 }
