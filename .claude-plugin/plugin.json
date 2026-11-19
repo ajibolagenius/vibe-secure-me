@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "vibe-secure-me",
   "displayName": "Vibe Secure Me",
-  "version": "1.3.1",
-  "description": "Framework-agnostic security auditor for AI-generated and enterprise codebases. Maps findings to OWASP Top 10:2025, API Top 10, Mobile Top 10, CI/CD Top 10, LLM Top 10, and CWE.",
+  "version": "2.0.0",
+  "description": "Platform-agnostic security + production-readiness skill for AI coding agents. Security mode maps to OWASP Top 10:2025, API/Mobile/CI-CD/LLM/Agentic Top 10 and CWE; Audit mode finds serverless cost, quota, egress and reliability problems.",
   "author": {
     "name": "Ajibola Akelebe",
     "url": "https://github.com/ajibolagenius"
@@ -19,6 +19,9 @@
     "vulnerability-scanning",
     "secure-code-review",
     "appsec",
-    "threat-modeling"
+    "threat-modeling",
+    "cost-optimization",
+    "serverless",
+    "performance-audit"
   ]
 }
