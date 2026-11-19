@@ -9,7 +9,7 @@
 import { cp, mkdir, readFile, readdir, rm, stat } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const SKILL_NAME = 'secure-me'
@@ -50,7 +50,8 @@ async function verifyPayload() {
   const problems = []
   const required = [
     join('skills', SKILL_NAME, 'SKILL.md'),
-    join('skills', SKILL_NAME, 'references'),
+    join('skills', SKILL_NAME, 'references', 'security', 'index.md'),
+    join('skills', SKILL_NAME, 'references', 'audit', 'index.md'),
     join('.claude-plugin', 'plugin.json'),
     'plugin.json',
   ]
@@ -67,14 +68,30 @@ async function verifyPayload() {
   }
   if (!/^description:\s*\S/m.test(frontmatter)) problems.push('SKILL.md frontmatter is missing `description`')
 
-  const markdown = (await readdir(join(SKILL_SOURCE, 'references'))).filter((f) => f.endsWith('.md'))
+  const markdown = await listReferences()
   if (!markdown.length) problems.push('references/ contains no markdown files')
 
-  // Every references/<file>.md linked from SKILL.md must actually exist.
-  for (const match of skill.matchAll(/references\/([a-z0-9-]+\.md)/g)) {
-    if (!markdown.includes(match[1])) problems.push(`SKILL.md links references/${match[1]}, which does not exist`)
+  // Every references/<path>.md linked from SKILL.md or another reference must
+  // exist, and every reference must be linked from somewhere — an unlinked
+  // file is never read by the agent.
+  const sources = [['SKILL.md', skill]]
+  for (const f of markdown) sources.push([`references/${f}`, await readFile(join(SKILL_SOURCE, 'references', f), 'utf8')])
+  const linked = new Set()
+  for (const [from, text] of sources) {
+    for (const match of text.matchAll(/references\/([a-z0-9/-]+\.md)/g)) {
+      if (!markdown.includes(match[1])) problems.push(`${from} links references/${match[1]}, which does not exist`)
+      if (from !== `references/${match[1]}`) linked.add(match[1])
+    }
+  }
+  for (const f of markdown) {
+    if (!linked.has(f)) problems.push(`references/${f} is not linked from SKILL.md or any other reference`)
   }
   return problems
+}
+
+async function listReferences() {
+  const entries = await readdir(join(SKILL_SOURCE, 'references'), { recursive: true })
+  return entries.filter((f) => f.endsWith('.md')).map((f) => f.split(sep).join('/'))
 }
 
 async function install(flags) {
@@ -103,7 +120,7 @@ async function install(flags) {
   }
 
   console.log(green(`Installed ${bold(SKILL_NAME)} to ${dest}`))
-  console.log(dim('Restart your AI assistant, then ask it to "audit this codebase for security issues".'))
+  console.log(dim('Restart your AI assistant, then run /secure-me (or ask it to "check the security" or "audit costs" of this codebase).'))
 }
 
 async function uninstall(flags) {
@@ -117,7 +134,7 @@ async function uninstall(flags) {
 }
 
 function usage() {
-  console.log(`${bold('vibe-secure-me')} — security audit skill for agentic AI assistants
+  console.log(`${bold('vibe-secure-me')} — security + cost/quota audit skill for agentic AI assistants
 
 ${bold('Usage')}
   npx vibe-secure-me <command> [options]
@@ -154,9 +171,10 @@ switch (command) {
       for (const p of problems) console.error(red(`  - ${p}`))
       process.exit(1)
     }
-    const refs = await readdir(join(SKILL_SOURCE, 'references'))
+    const refs = await listReferences()
+    const count = (mode) => refs.filter((f) => f.startsWith(`${mode}/`)).length
     const { size } = await stat(join(SKILL_SOURCE, 'SKILL.md'))
-    console.log(green(`OK — SKILL.md (${size} bytes) + ${refs.filter((f) => f.endsWith('.md')).length} references`))
+    console.log(green(`OK — SKILL.md (${size} bytes) + ${count('security')} security / ${count('audit')} audit references`))
     break
   }
   default:

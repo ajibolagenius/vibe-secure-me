@@ -59,3 +59,11 @@ If your application gives an LLM access to tools (database queries, API calls, f
 - Use least-privilege access (read-only where possible)
 - Log all tool invocations for audit
 - Never let the LLM construct raw SQL or shell commands from user input
+
+## System Prompt Leakage & Secrets in Context
+
+Assume the system prompt will be extracted (OWASP LLM07). Never put API keys, internal URLs, other users' data, or authorization rules that are enforced *only* by the prompt into it. Authorization belongs in code that runs before and after the model call.
+
+## Agents & MCP
+
+If the model chooses tools in a loop, reads external content (web, email, tickets, repos), or connects to MCP servers, also apply `references/security/agentic-and-mcp.md`.

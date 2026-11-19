@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url'
 
 const TESTS_DIR = dirname(fileURLToPath(import.meta.url))
 const CASES_DIR = join(TESTS_DIR, 'cases')
-const MAX_AUDIT_STEP = 19
+const MAX_AUDIT_STEP = 22 // security-mode steps in references/security/index.md
 const SEVERITIES = new Set(['critical', 'high', 'medium', 'low', 'info'])
 
 const color = process.stdout.isTTY && !process.env.NO_COLOR

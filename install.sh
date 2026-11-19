@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# vibe-secure-me — security audit skill for agentic AI assistants
+# vibe-secure-me — security + cost/quota audit skill for agentic AI assistants
 #
 #   curl -fsSL https://raw.githubusercontent.com/ajibolagenius/vibe-secure-me/main/install.sh | bash
 #
@@ -15,7 +15,7 @@ REPO="${SECURE_ME_REPO:-ajibolagenius/vibe-secure-me}"
 # instructions by an agent, so tracking a moving ref means any push to that
 # branch lands in every user's agent context. CI keeps this in step with
 # package.json; see .github/workflows/validate.yml.
-PINNED_REF="v1.3.1"
+PINNED_REF="v2.0.0"
 REF="${SECURE_ME_REF:-$PINNED_REF}"
 SKILLS_DIR="${SECURE_ME_DIR:-$HOME/.claude/skills}"
 TARGET="$SKILLS_DIR/secure-me"
@@ -80,4 +80,4 @@ for extra in LICENSE README.md; do
 done
 
 printf '%sInstalled secure-me to %s%s\n' "$GREEN" "$TARGET" "$RESET"
-printf '%sRestart your AI assistant, then ask it to "audit this codebase for security issues".%s\n' "$DIM" "$RESET"
+printf '%sRestart your AI assistant, then run /secure-me (or ask it to "check the security" or "audit costs" of this codebase).%s\n' "$DIM" "$RESET"
